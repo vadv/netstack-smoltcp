@@ -105,10 +105,8 @@ impl Sink<UdpMsg> for WriteHalf {
         use std::io::{Error, ErrorKind::InvalidData};
         let (data, src_addr, dst_addr) = item;
 
-        if data.is_empty() {
-            return Ok(());
-        }
-
+        // Пустая UDP-датаграмма — легальный payload (0 байт): заголовки
+        // всё равно строятся, иначе нулевой ответ от цели терялся бы.
         let builder = match (src_addr, dst_addr) {
             (SocketAddr::V4(src), SocketAddr::V4(dst)) => {
                 PacketBuilder::ipv4(src.ip().octets(), dst.ip().octets(), 20)
